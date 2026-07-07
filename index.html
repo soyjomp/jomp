@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <title>Jorge Martínez Pérez | Portfoli</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+    :root {
+        --rojo-amb: #E30613;
+        --negro: #000000;
+        --blanco: #FFFFFF;
+    }
+
+    body {
+        margin: 0;
+        font-family: 'Montserrat', sans-serif;
+        background: var(--blanco);
+        color: var(--negro);
+    }
+
+    #loader {
+        position: fixed;
+        inset: 0;
+        background: var(--blanco);
+        color: var(--negro);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: 'Playfair Display', serif;
+        font-size: 35vw;
+        font-weight: 700;
+        z-index: 1000;
+        transition: transform 1s cubic-bezier(0.86, 0, 0.07, 1);
+    }
+
+    #tooltip {
+        position: absolute;
+        display: none;
+        pointer-events: none;
+        background: #fff;
+        border: 1px solid #ddd;
+        padding: 0;
+        font-family: sans-serif;
+        font-size: 14px;
+        font-weight: bold;
+        box-shadow: 0 4px 10px rgba(0,0,0,.15);
+        border-radius: 4px;
+        z-index: 100;
+    }
+
+    #tooltip-inner {
+        padding: 10px 15px;
+        display: flex;
+        align-items: center;
+    }
+
+    #color-tag {
+        width: 10px;
+        height: 10px;
+        margin-right: 8px;
+        border-radius: 2px;
+    }
+
+    #tooltip::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -6px;
+        border-width: 6px;
+        border-style: solid;
+        border-color: #fff transparent transparent transparent;
+    }
+
+    #lightbox {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.95);
+        z-index: 2000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #lightbox img {
+        max-width: 85%;
+        max-height: 80%;
+        border: none;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 30px;
+        right: 40px;
+        color: white;
+        font-size: 3rem;
+        cursor: pointer;
+    }
+
+    .nav-btn {
+        position: absolute;
+        top: 50%;
+        color: white;
+        font-size: 3rem;
+        cursor: pointer;
+        padding: 20px;
+    }
+
+    .prev { left: 20px; }
+    .next { right: 20px; }
+
+    .map-container {
+        width: 100%;
+        max-width: 900px;
+        margin-top: 20px;
+    }
+
+    .map-container svg {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    .zona {
+        cursor: pointer;
+        transition: filter .3s;
+        stroke: #fff;
+        stroke-width: .5;
+    }
+
+    .zona:hover {
+        filter: brightness(.9);
+    }
+
+    .c1 { fill:#FF6B6B; }
+    .c2 { fill:#4ECDC4; }
+    .c3 { fill:#FFE66D; }
+    .c4 { fill:#1A535C; }
+
+    .wrapper {
+        display: flex;
+        padding: 60px;
+        max-width: 1400px;
+        margin: auto;
+    }
+
+    .sidebar {
+        width: 300px;
+        flex-shrink: 0;
+    }
+
+    .logo {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.8rem;
+        line-height: 1.1;
+        margin-bottom: 20px;
+        cursor: pointer;
+    }
+
+    .menu-item {
+        margin: 20px 0;
+        cursor: pointer;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: .9rem;
+    }
+
+    /* ==========================
+       MENÚ NUEVO
+       ========================== */
+
+    .sub-menu {
+        display: none;
+        margin-left: 18px;
+    }
+
+    /* Categorías */
+
+    .categoria{
+    margin-top:14px;
+    margin-bottom:6px;
+    padding:4px 0;
+    font-size:.65rem;
+    font-weight:600;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:#666;
+    border-bottom:1px solid #e5e5e5;
+    cursor:pointer;
+    transition:.2s;
+}
+
+    .categoria:hover{
+        color:var(--rojo-amb);
+    }
+
+    /* Proyectos */
+
+    .sub-menu .sub-menu{
+        margin:8px 0 18px 16px;
+        padding-left:14px;
+        border-left:2px solid #ddd;
+    }
+
+    .sub-menu .sub-menu div{
+        margin:10px 0;
+        font-size:.88rem;
+        font-weight:400;
+        color:#555;
+        cursor:pointer;
+        transition:.2s;
+    }
+
+    .sub-menu .sub-menu div:hover{
+        color:var(--rojo-amb);
+        transform:translateX(4px);
+    }
+
+    .content {
+        flex-grow: 1;
+        padding-left: 100px;
+        min-height: 60vh;
+    }
+
+    .col-title {
+        font-family: 'Playfair Display', serif;
+        border-bottom: 2px solid var(--rojo-amb);
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+
+    .revista-layout {
+        display: flex;
+        gap: 40px;
+    }
+
+    .col-foto {
+        width: 45%;
+        height: 400px;
+        background-size: cover;
+        background-position: center;
+        border: 1px solid #ddd;
+    }
+
+    .col-texto {
+        width: 55%;
+    }
+
+    .gallery {
+        display: grid;
+        grid-template-columns: repeat(4,1fr);
+        gap: 15px;
+        margin-top: 40px;
+    }
+
+    .thumb {
+        height: 120px;
+        background-size: cover;
+        background-position: center;
+        cursor: pointer;
+        border: 1px solid #ccc;
+        transition:.2s;
+    }
+
+    .thumb:hover{
+        transform:scale(1.03);
+    }
+
+    footer {
+        margin-top: 100px;
+        padding: 20px 0;
+        border-top: 1px solid var(--negro);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .copyright {
+        font-size: .7rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .top-arrow {
+        cursor: pointer;
+        font-size: 1.5rem;
+        border: 1px solid black;
+        padding: 0 10px;
+    }
+
+    .hist-entry {
+        font-size: .85rem;
+        margin-bottom: 15px;
+    }
+
+    .hist-date {
+        font-size: .75rem;
+        color: #666;
+        font-style: italic;
+        display: block;
+    }
+</style>
+</head>
+<body>
+
+    <div id="loader">0%</div>
+
+    <div id="tooltip">
+        <div id="tooltip-inner">
+            <div id="color-tag"></div>
+            <span id="skill-text"></span>
+        </div>
+    </div>
+
+    <div id="lightbox">
+        <span class="close-btn" onclick="closeLB()">&times;</span>
+        <span class="nav-btn prev" onclick="changeImg(-1)">&#10094;</span>
+        <img id="lb-img" src="" alt="Ampliada">
+        <span class="nav-btn next" onclick="changeImg(1)">&#10095;</span>
+    </div>
+
+    <div class="wrapper">
+        <aside class="sidebar">
+            <div class="logo" onclick="location.reload()">JORGE MARTÍNEZ<br>PÉREZ</div>
+            <div class="menu-item" onclick="loadResume()">CURRÍCULUM</div>
+            <div class="menu-item" onclick="toggleProyectos()">PROJECTES ▼</div>
+            <div id="menu-proyectos" class="sub-menu">
+                <div class="categoria" onclick="toggleSub('cat1')">DISSENY EDITORIAL ▶</div>
+                <div id="cat1" class="sub-menu">
+                    <div onclick="showProject('revista')">Fascicles</div>
+                    <div onclick="showProject('muntatge')">Muntatge tècnic</div>
+                    
+                </div>
+                <div class="categoria" onclick="toggleSub('cat2')">DISSENY GRÀFIC ▶</div>
+                <div id="cat2" class="sub-menu">
+                    <div onclick="showProject('logos')">Logotips</div>
+                </div>
+                <div class="categoria" onclick="toggleSub('cat3')">IL·LUSTRACIÓ ▶</div>
+                <div id="cat3" class="sub-menu">
+                    <div onclick="showProject('ilus')">Ilustració</div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="content" id="main">
+            <div class="map-container">
+                <svg viewBox="0 0 100 100"> 
+                    <g class="zona c3" data-skill="Comunicació visual" data-color="#FFE66D"><path d="M40 30H50V40H40Z"/><path d="M50 30H60V40H50Z"/><path d="M30 40H40V50H30Z"/><path d="M40 40H50V50H40Z"/><path d="M50 40H60V50H50Z"/><path d="M60 40H70V50H60Z"/><path d="M40 50H50V60H40Z"/><path d="M50 50H60V60H50Z"/><path d="M30 50H40V60H30Z"/><path d="M40 60H50V70H40Z"/><path d="M50 60H60V70H50Z"/></g>
+                    <g class="zona c1" data-skill="Disseny gràfic institucional" data-color="#FF6B6B"><path d="M30 20H40V30H30Z"/><path d="M40 20H50V30H40Z"/><path d="M50 20H60V30H50Z"/><path d="M20 30H30V40H20Z"/><path d="M30 30H40V40H30Z"/><path d="M20 40H30V50H20Z"/></g>
+                    <g class="zona c2" data-skill="Disseny editorial i de campanyes" data-color="#4ECDC4"><path d="M60 50H70V60H60Z"/><path d="M70 50H80V60H70Z"/><path d="M60 60H70V70H60Z"/><path d="M70 60H80V70H70Z"/><path d="M80 60H90V70H80Z"/><path d="M60 70H70V80H60Z"/></g>
+                    <g class="zona c4" data-skill="Gestió d'identitat visual" data-color="#1A535C"><path d="M10 40H20V50H10Z"/><path d="M10 50H20V60H10Z"/><path d="M20 50H30V60H20Z"/><path d="M20 60H30V70H20Z"/></g>
+                </svg>
+            </div>
+        </main>
+    </div>
+
+    <footer class="wrapper">
+        <div class="copyright">© 2026 JORGE MARTÍNEZ PÉREZ. TOTS ELS DRETS RESERVATS.</div>
+        <div class="top-arrow" onclick="window.scrollTo({top:0, behavior:'smooth'})">↑</div>
+    </footer>
+
+    <script>
+        const tt = document.getElementById('tooltip');
+        const tag = document.getElementById('color-tag');
+        const text = document.getElementById('skill-text');
+
+        document.querySelectorAll('.zona').forEach(grupo => { 
+            grupo.addEventListener('mousemove', (e) => { 
+                tt.style.display = 'block'; 
+                tt.style.left = (e.pageX + 15) + 'px'; 
+                tt.style.top = (e.pageY - 40) + 'px'; 
+                text.innerText = grupo.getAttribute('data-skill'); 
+                tag.style.backgroundColor = grupo.getAttribute('data-color');
+            }); 
+            grupo.addEventListener('mouseleave', () => tt.style.display = 'none'); 
+        });
+
+        const proyectosData = {
+
+    revista: {
+        titulo: "FASCICLES PER A DBA",
+        desc: "Diferents treballs realitzats per a DBA: disseny, maquetació i producció de fascicles de diverses temàtiques i en diferents idiomes. Projectes amb continguts variats com batalles i guerres, videojocs, cotxes i motos, entre altres.<br><br>En aquests projectes he estat responsable del disseny complet del fascicle, incloent el retoc fotogràfic, la maquetació editorial, la composició gràfica i l’organització visual dels continguts. A cada fascicle s’incloïa també una secció de muntatge tècnic, de la qual m’encarregava del disseny, la composició i la maquetació específica, assegurant la coherència visual i la correcta integració dins del conjunt del projecte.<br><br>En les imatges es poden veure alguns exemples d’aquests treballs.",
+        main: "links/fasciculo00.jpg",
+        galeria: [
+            "links/fasciculo01.jpg",
+            "links/fasciculo02.jpg",
+            "links/fasciculo03.jpg",
+            "links/fasciculo04.jpg",
+            "links/fasciculo05.jpg",
+            "links/fasciculo06.jpg",
+            "links/fasciculo07.jpg"
+        ]
+    },
+
+    muntatge: {
+        titulo: "MUNTATGE TÈCNIC",
+        desc: "Disseny, composició i maquetació de les pàgines de muntatge tècnic incloses als fascicles editats per DBA. Aquestes pàgines requerien una organització molt precisa dels elements gràfics, la integració d'il·lustracions, fotografies, esquemes i textos explicatius per facilitar el muntatge de cada col·leccionable.<br><br>El treball consistia a mantenir una estructura clara, coherent i funcional, garantint una lectura intuïtiva sense perdre la identitat visual de la col·lecció. Cada entrega implicava adaptar el disseny a peces diferents mantenint sempre la mateixa qualitat gràfica i editorial.",
+        main: "links/mont01.jpg",
+        galeria: [
+            "links/mont02.jpg",
+            "links/mont03.jpg",
+            "links/mont06.jpg",
+            "links/mont05.jpg",
+            "links/mont08.jpg",
+            "links/mont04.jpg",
+            "links/mont07.jpg"
+        ]
+    },
+
+    logos: {
+        titulo: "LOGOTIPS",
+        desc: "Disseny estratègic d'identitats visuals per a empreses de tots els sectors. Transformo idees en logotips únics, memorables i alineats amb l'essència de cada marca. El meu procés combina una anàlisi conceptual rigorosa amb una execució gràfica precisa, on la tipografia, el símbol i la forma s'uneixen per construir una imatge corporativa coherent i diferenciadora.<br><br>Cada projecte es desenvolupa explorant diverses línies creatives per garantir un resultat exclusiu. Presto una atenció meticulosa a la selecció cromàtica, la composició, l'equilibri visual i l'escalabilitat tècnica, assegurant que la marca funcioni amb la mateixa força tant en format digital com en aplicacions impreses. El resultat és una identitat versàtil, professional i preparada per comunicar l'essència del teu projecte en qualsevol context.",
+        main: "links/logo00.jpg",
+        galeria: [
+            "links/logo01.jpg",
+            "links/logo09.jpg",
+            "links/logo03.jpg",
+            "links/logo04.jpg",
+            "links/logo05.jpg",
+            "links/logo06.jpg",
+            "links/logo07.jpg",
+            "links/logo08.jpg",
+            "links/logo02.jpg",
+        ]
+    },
+    ilus: {
+        titulo: "ILUSTRACIÓ",
+        desc: "Més enllà del disseny gràfic, la il·lustració és l'eix central que diferencia el meu treball. Format a l'Escola Joso, aporto una vessant artística i tècnica que em permet oferir una versatilitat única en cada projecte. Fusiono el disseny estratègic amb tècniques d'il·lustració avançades per crear identitats visuals amb una personalitat pròpia i irrepetible.<br><br>Cada il·lustració és el resultat d'un procés creatiu on la tècnica manual i digital es posen al servei del teu missatge. Aquesta capacitat d'adaptació em permet transcendir els estàndards convencionals, dotant a cada marca, publicació o campanya d'una força gràfica diferenciadora. El meu objectiu és transformar idees en imatges amb ànima, garantint que el resultat final sigui, no només funcional, sinó artísticament memorable i totalment alineat amb les teves necessitats.",
+        main: "links/ilus00.jpg",
+        galeria: [
+            "links/ilus01.jpg",
+            "links/ilus02.jpg",
+            "links/ilus03.jpg",
+            "links/ilus04.jpg",
+            "links/ilus05.jpg",
+            "links/ilus06.jpg",
+            "links/ilus07.jpg",
+            "links/ilus08.jpg",
+            "links/ilus09.jpg",
+            "links/ilus10.jpg",
+        ]
+    },
+            'identidad': { titulo: "Identitat AMB", desc: "Rebranding corporatiu aplicat a senyalètica.", main: "https://picsum.photos/800/600?random=20", galeria: ["https://picsum.photos/800/600?random=21", "https://picsum.photos/800/600?random=22"] }
+        };
+
+        let currentGallery = [];
+        let currentImgIndex = 0;
+
+        function showProject(id) {
+            const p = proyectosData[id];
+            // CAMBIO: Ahora currentGallery es solo la galería, sin el main
+            currentGallery = p.galeria; 
+            
+            document.getElementById('main').innerHTML = `
+                <div class="revista-layout">
+                    <div class="col-foto" style="background-image:url(${p.main})"></div>
+                    <div class="col-texto">
+                        <h2 style="font-family: 'Playfair Display', serif;">${p.titulo}</h2>
+                        <p>${p.desc}</p>
+                    </div>
+                </div>
+                <div class="gallery">
+                    ${currentGallery.map((img, i) => `<div class="thumb" onclick="openLB(${i})" style="background-image:url(${img})"></div>`).join('')}
+                </div>`;
+        }
+
+        function openLB(i) { currentImgIndex = i; document.getElementById('lb-img').src = currentGallery[i]; document.getElementById('lightbox').style.display = 'flex'; }
+        function closeLB() { document.getElementById('lightbox').style.display = 'none'; }
+        function changeImg(dir) { currentImgIndex = (currentImgIndex + dir + currentGallery.length) % currentGallery.length; document.getElementById('lb-img').src = currentGallery[currentImgIndex]; }
+
+        let p = 0; const l = document.getElementById('loader');
+        const interval = setInterval(() => { p++; l.innerText = p + "%"; if(p >= 100) { clearInterval(interval); l.style.transform = "translateY(-100%)"; } }, 50);
+        
+        function toggleProyectos() { document.getElementById('menu-proyectos').style.display = 'block'; }
+        function toggleSub(id) { document.getElementById(id).style.display = (document.getElementById(id).style.display === 'block') ? 'none' : 'block'; }
+        
+        function loadResume() {
+            document.getElementById('main').innerHTML = `
+                <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
+                    <div>
+                        <h3 class="col-title">EXPERIÈNCIA</h3>
+                        <div class="hist-entry"><strong>Consorci d'habitatge de l'AMB</strong><br><span class="hist-date">Setembre 2024 - Act.</span>Administratiu Next Generation</div>
+                        <hr><div class="hist-entry"><strong>DBA</strong><br><span class="hist-date">2016 - 2023</span>Dissenyador gràfic packaging</div>
+                        <hr><div class="hist-entry"><strong>Encarregat botiga 2a mà</strong><br><span class="hist-date">2011 - 2015</span></div>
+                        <hr><div class="hist-entry"><strong>Fotoprix</strong><br><span class="hist-date">2009 - 2011</span>Impressor / Dependent</div>
+                        <hr><div class="hist-entry"><strong>Prixland</strong><br><span class="hist-date">2009 - 2010</span>Dissenyador gràfic</div>
+                        <hr><div class="hist-entry"><strong>Páginas Amarillas</strong><br><span class="hist-date">2008 - 2009</span>Dissenyador gràfic</div>
+                        <hr><div class="hist-entry"><strong>SA-PI</strong><br><span class="hist-date">2007 - 2008</span>Dissenyador gràfic</div>
+                        <hr><div class="hist-entry"><strong>El Corte Inglés</strong><br><span class="hist-date">2002 - 2004</span>Dissenyador gràfic</div>
+                    </div>
+                    <div><h3 class="col-title">HABILITATS</h3><p style="font-size:0.8rem">
+Direcció d'art<br>
+Concepte de marca<br>
+Tipografia<br>
+Maquetació<br>
+Disseny imprès<br>
+Disseny digital editorial<br>
+Maquetació web<br>
+Il·lustració<br>
+Coneixement AMB<br>
+Gestió pública<br>
+Tramitació administrativa<br>
+Entorn institucional<br>
+Gestió de continguts web<br>
+Publicació de notícies i articles<br>
+Actualització de continguts digitals
+</p></div>
+                    <div>
+  <h3 class="col-title">CONTACTE</h3>
+  <p style="font-size:0.8rem">
+    Barcelona, AMB<br>
+    <a href="mailto:soyjomp@gmail.com">soyjomp@gmail.com</a><br>
+    <span style="font-weight:600; letter-spacing:1px;">📞 677 884 001</span>
+  </p>
+</div>
+<div>
+  <h3 class="col-title">FORMACIÓ I CURSOS</h3>
+
+  <h4 style="margin:0.8rem 0 0.3rem; font-size:0.9rem; font-weight:bold;">
+    Formació reglada
+  </h4>
+  <p style="font-size:0.8rem; line-height:1.8;">
+    CFGS Disseny i producció editorial – Escola del Treball (2005)<br>
+    CFGM Preimpressió en arts gràfiques – Escola del Treball (2002)
+  </p>
+
+  <h4 style="margin:0.8rem 0 0.3rem; font-size:0.9rem; font-weight:bold;">
+    Cursos i certificacions
+  </h4>
+  <p style="font-size:0.8rem; line-height:1.8;">
+    ACTIC Nivell Mitjà<br>
+    COMPETIC Superior<br>
+    C5 (Tractament d'informació gràfica, sonora i d'imatge en moviment)<br>
+    C8 (Presentació de continguts)<br>
+    BDNS<br>
+    Firmadoc<br>
+    EACAT<br>
+    Ciberseguretat<br>
+    LOPD<br>
+    Web de l'AMB
+  </p>
+</div>
+                   
+                </div>`;
+        }
+    </script>
+</body>
+</html>
